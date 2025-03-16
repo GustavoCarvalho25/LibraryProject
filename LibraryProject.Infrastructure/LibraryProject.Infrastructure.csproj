@@ -9,10 +9,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\LibraryProject.Core\LibraryProject.Core.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
       <Folder Include="Persistence\Migrations\" />
     </ItemGroup>
 
@@ -24,6 +20,10 @@
       </PackageReference>
       <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.11" />
       <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.11" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\LibraryProject.Core\LibraryProject.Core.csproj" />
     </ItemGroup>
 
 </Project>

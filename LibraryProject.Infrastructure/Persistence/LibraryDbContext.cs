@@ -16,16 +16,28 @@ public class LibraryDbContext : DbContext
         modelBuilder.Entity<User>(e =>
         {
             e.HasKey(s => s.Id);
+            e.HasMany(u => u.Loans)
+                .WithOne(l => l.Customer)
+                .HasForeignKey(l => l.CustomerId);
         });
 
         modelBuilder.Entity<Book>(e =>
         {
             e.HasKey(b => b.Id);
+            e.HasMany(b => b.Loans)
+                .WithOne(l => l.Book)
+                .HasForeignKey(l => l.BookId);
         });
 
         modelBuilder.Entity<Loan>(e =>
         {
             e.HasKey(l => l.Id);
+            e.HasOne(l => l.Customer)
+                .WithMany(c => c.Loans)
+                .HasForeignKey(l => l.CustomerId);
+            e.HasOne(l => l.Book)
+                .WithMany(b => b.Loans)
+                .HasForeignKey(l => l.BookId);
         });
         
         base.OnModelCreating(modelBuilder);

@@ -24,14 +24,9 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Controllers\Book\" />
-      <Folder Include="Controllers\Loan\" />
-      <Folder Include="Controllers\User\" />
-    </ItemGroup>
-
-    <ItemGroup>
       <ProjectReference Include="..\LibraryProject.Application\LibraryProject.Application.csproj" />
       <ProjectReference Include="..\LibraryProject.Core\LibraryProject.Core.csproj" />
+      <ProjectReference Include="..\LibraryProject.Infrastructure\LibraryProject.Infrastructure.csproj" />
     </ItemGroup>
 
 </Project>
