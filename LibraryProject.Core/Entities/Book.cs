@@ -1,23 +1,21 @@
 namespace Core.Entities;
 
-public class Book
+public class Book : Entity
 {
-    public Guid Id { get; private set; }
-    public string Title { get; private set; }
-    public string Author { get; private set; }
-    public string ISBN { get; private set; }
-    public int PublicationYear { get; private set; }
-    public List<Loan> Loans { get; private set; }
+    public string Title { get; set; }
+    public string Author { get; set; }
+    public string ISBN { get; set; }
+    public int PublicationYear { get; set; }
+    public List<Loan> Loans { get; set; }
     
-    public Book() {}
-
-    public Book(string title, string author, string isbn, int publicationYear, List<Loan> loans)
+    public Book(string title, string author, string isbn, int publicationYear, List<Loan> loans) : base()
     {
-        Id = Guid.NewGuid();
         Title = title;
         Author = author;
         ISBN = isbn;
         PublicationYear = publicationYear;
         Loans = loans;
     }
+    
+    public Book() {}
 }

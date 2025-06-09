@@ -1,11 +1,17 @@
 namespace Core.Entities;
 
-public class User
+public class User : Entity
 {
-    public Guid Id { get; private set; }
-    public string Name { get; private set; }
-    public string Email { get; private set; }
-    public List<Loan> Loans { get; private set; }
+    public string Name { get; set; }
+    public string Email { get; set; }
+    public List<Loan> Loans { get; set; }
     
     public User() {}
+    
+    public User(string name, string email, List<Loan> loans)
+    {
+        Name = name;
+        Email = email;
+        Loans = loans;
+    }
 }
