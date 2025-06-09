@@ -2,7 +2,15 @@ using Core.Entities;
 
 namespace Core.Repository;
 
-public interface IBaseRepository<T> where T : class
+public interface IBaseRepository<TEntity> : IDisposable
 { 
-    Task<T> Post(T entity);
+    Task<TEntity> Add(TEntity entity);
+    
+    Task<TEntity> Update(TEntity entity);
+
+    Task<TEntity> Remove(TEntity entity);
+
+    Task<TEntity> GetById(Guid id);
+    
+    Task<IEnumerable<TEntity>> GetAll();
 }

@@ -4,16 +4,16 @@ using Infrastructure.Persistence;
 
 namespace Infrastructure.Repositories;
 
-public class BookRepository : BaseRepository<Book>, IBookRepository
+public class LoanRepository : BaseRepository<Loan>, ILoanRepository
 {
     private readonly LibraryDbContext _context;
 
-    public BookRepository(LibraryDbContext context) : base(context)
+    public LoanRepository(LibraryDbContext context) : base(context)
     {
         _context = context;
     }
 
-    public Task<IEnumerable<Book>> GetBooksByAuthor(string authorName)
+    public Task<IEnumerable<Loan>> GetLoansByUserId(Guid userId)
     {
         throw new NotImplementedException();
     }
