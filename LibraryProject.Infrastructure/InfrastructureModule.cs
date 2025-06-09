@@ -8,13 +8,14 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Infrastructure;
 
-public static class InfraestructureModule
+public static class InfrastructureModule
 {
-    public static IServiceCollection AddInfraestructure(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
         services
             .AddDatabase(configuration)
             .AddRepositories();
+        
         return services;
     }
 
@@ -24,9 +25,12 @@ public static class InfraestructureModule
         services.AddDbContext<LibraryDbContext>(o => o.UseSqlServer(connectionString));
         return services;
     }
+    
     private static IServiceCollection AddRepositories(this IServiceCollection services)
     {
-        services.AddScoped<IBaseRepository<Book>, BookRepository>();
+        services.AddScoped<IBookRepository, BookRepository>();
+        services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<ILoanRepository, LoanRepository>();
         
         return services;
     }
