@@ -8,18 +8,17 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="Handlers\" />
-      <Folder Include="Queries\" />
-      <Folder Include="Validators\" />
-    </ItemGroup>
-
-    <ItemGroup>
       <ProjectReference Include="..\LibraryProject.Core\LibraryProject.Core.csproj" />
       <ProjectReference Include="..\LibraryProject.Infrastructure\LibraryProject.Infrastructure.csproj" />
     </ItemGroup>
 
     <ItemGroup>
+      <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.1" />
       <PackageReference Include="MediatR" Version="12.4.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Queries\Books\GetAllBooks\" />
     </ItemGroup>
 
 </Project>
