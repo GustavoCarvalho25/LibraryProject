@@ -20,5 +20,5 @@ public class BookViewModel
     }
     
     public static BookViewModel ToViewModel(Book book)
-    => new BookViewModel(book.Id, book.Title, book.Author, book.ISBN, book.PublicationYear);
+    => new BookViewModel(book.Id, book.Title, book.Author, book.Isbn, book.PublicationYear);
 }
