@@ -4,18 +4,25 @@ public class Book : Entity
 {
     public string Title { get; set; }
     public string Author { get; set; }
-    public string ISBN { get; set; }
+    public string Isbn { get; set; }
     public int PublicationYear { get; set; }
-    public List<Loan> Loans { get; set; }
+    public virtual List<Loan> Loans { get; set; }
     
-    public Book(string title, string author, string isbn, int publicationYear, List<Loan> loans) : base()
+    protected Book() {}
+    
+    public Book(string title, string author, string isbn, int publicationYear) : base()
     {
         Title = title;
         Author = author;
-        ISBN = isbn;
+        Isbn = isbn;
         PublicationYear = publicationYear;
-        Loans = loans;
     }
-    
-    public Book() {}
+
+    public void Update(string? title, string? author, string? isbn, int? publicationYear)
+    {
+        Title = title ?? this.Title;
+        Author = author ?? this.Author;
+        Isbn = isbn ?? this.Isbn;
+        PublicationYear = publicationYear ?? this.PublicationYear;
+    }
 }

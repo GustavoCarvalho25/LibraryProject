@@ -1,6 +1,6 @@
 namespace Core.Entities;
 
-public class Entity
+public abstract class Entity
 {
     public Guid Id { get; set; }
     
