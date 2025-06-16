@@ -1,6 +1,7 @@
 using Core.Entities;
 using Core.Repository;
 using Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories;
 
@@ -13,8 +14,8 @@ public class BookRepository : BaseRepository<Book>, IBookRepository
         _context = context;
     }
 
-    public Task<IEnumerable<Book>> GetBooksByAuthor(string authorName)
-    {
-        throw new NotImplementedException();
-    }
+    public async Task<IEnumerable<Book>> GetBooksByAuthor(string authorName)
+    => await _context.Books
+        .Where(b => b.Author.Contains(authorName))
+        .ToListAsync();
 }

@@ -1,6 +1,7 @@
 using Core.Entities;
 using Core.Repository;
 using Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories;
 
@@ -13,13 +14,13 @@ public class UserRepository : BaseRepository<User>, IUserRepository
         _context = context;
     }
 
-    public Task<User> GetByEmail(string email)
-    {
-        throw new NotImplementedException();
-    }
+    public async Task<User?> GetByEmail(string email)
+    => await _context.Users
+        .AsNoTracking()
+        .FirstOrDefaultAsync(u => u.Email == email);
 
-    public Task<IEnumerable<User>> GetUsersWithLoans()
-    {
-        throw new NotImplementedException();
-    }
+    public async Task<IEnumerable<User>> GetUsersWithLoans()
+    => await _context.Users
+        .Include(u => u.Loans)
+        .ToListAsync();
 }

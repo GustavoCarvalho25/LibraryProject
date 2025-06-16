@@ -1,6 +1,7 @@
 using Core.Entities;
 using Core.Repository;
 using Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories;
 
@@ -13,8 +14,8 @@ public class LoanRepository : BaseRepository<Loan>, ILoanRepository
         _context = context;
     }
 
-    public Task<IEnumerable<Loan>> GetLoansByUserId(Guid userId)
-    {
-        throw new NotImplementedException();
-    }
+    public async Task<IEnumerable<Loan>> GetLoansByUserId(Guid userId)
+    => await _context.Loans
+        .Where(l => l.CustomerId == userId)
+        .ToListAsync();
 }
