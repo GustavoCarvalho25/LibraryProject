@@ -4,6 +4,6 @@ namespace Core.Repository;
 
 public interface IUserRepository : IBaseRepository<User>
 { 
-    Task<User> GetByEmail(string email);
+    Task<User?> GetByEmail(string email);
     Task<IEnumerable<User>> GetUsersWithLoans();
 }
