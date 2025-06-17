@@ -10,7 +10,7 @@ public class Book : Entity
     
     protected Book() {}
     
-    public Book(string title, string author, string isbn, int publicationYear) : base()
+    public Book(string title, string author, string isbn, int publicationYear)
     {
         Title = title;
         Author = author;
@@ -20,9 +20,9 @@ public class Book : Entity
 
     public void Update(string? title, string? author, string? isbn, int? publicationYear)
     {
-        Title = title ?? this.Title;
-        Author = author ?? this.Author;
-        Isbn = isbn ?? this.Isbn;
-        PublicationYear = publicationYear ?? this.PublicationYear;
+        Title = title ?? Title;
+        Author = author ?? Author;
+        Isbn = isbn ?? Isbn;
+        PublicationYear = publicationYear ?? PublicationYear;
     }
 }

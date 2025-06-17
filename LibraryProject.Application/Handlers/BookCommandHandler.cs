@@ -63,6 +63,20 @@ public class BookCommandHandler
 
     public Task<ResultViewModel<BookViewModel>> Handle(DeleteBookCommand request, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        var book = _bookRepository.GetById(request.Id);
+        
+        if (book is null)
+        {
+            return Task.FromResult(ResultViewModel<BookViewModel>.Error("Book not found."));
+        }
+        
+        var result = _bookRepository.Remove(book.Result);
+        
+        if (result is null)
+        {
+            return Task.FromResult(ResultViewModel<BookViewModel>.Error("Failed to delete book."));
+        }
+        
+        return Task.FromResult(ResultViewModel<BookViewModel>.Success(BookViewModel.ToViewModel(book.Result)));
     }
 }
