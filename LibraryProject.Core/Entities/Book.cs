@@ -1,28 +1,53 @@
+using Core.ValueObjects;
+
 namespace Core.Entities;
 
 public class Book : Entity
 {
-    public string Title { get; set; }
-    public string Author { get; set; }
-    public string Isbn { get; set; }
-    public int PublicationYear { get; set; }
-    public virtual List<Loan> Loans { get; set; }
+    public string Title { get; private set; }
+    public string Author { get; private set; }
+    public ISBN ISBN { get; private set; }
+    public int PublicationYear { get; private set; }
+    public bool IsAvailable { get; private set; } = true;
+    public virtual List<Loan>? Loans { get; set; }
     
-    protected Book() {}
+    public Book(string title, string author, string isbn, int publicationYear, bool isAvailable = true)
+    {
+        Title = title;
+        Author = author;
+        ISBN = new ISBN(isbn);
+        PublicationYear = publicationYear;
+        IsAvailable = isAvailable;
+    }
     
     public Book(string title, string author, string isbn, int publicationYear)
     {
         Title = title;
         Author = author;
-        Isbn = isbn;
+        ISBN = new ISBN(isbn);
         PublicationYear = publicationYear;
     }
-
-    public void Update(string? title, string? author, string? isbn, int? publicationYear)
+    
+    public Loan LoanTo(User user)
     {
-        Title = title ?? Title;
-        Author = author ?? Author;
-        Isbn = isbn ?? Isbn;
-        PublicationYear = publicationYear ?? PublicationYear;
+        if (!IsAvailable)
+            throw new InvalidOperationException("Book is not available for loan");
+            
+        IsAvailable = false;
+        var loan = new Loan(user.Id, user, Id, this, DateTime.Now);
+        
+        if (Loans == null)
+            Loans = new List<Loan>();
+            
+        Loans.Add(loan);
+        return loan;
+    }
+    
+    public void Return()
+    {
+        if (IsAvailable)
+            throw new InvalidOperationException("Book is already available");
+            
+        IsAvailable = true;
     }
 }

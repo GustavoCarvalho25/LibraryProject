@@ -18,7 +18,4 @@ public class BookViewModel
         ISBN = isbn;
         PublicationYear = publicationYear;
     }
-    
-    public static BookViewModel ToViewModel(Book book)
-    => new BookViewModel(book.Id, book.Title, book.Author, book.Isbn, book.PublicationYear);
 }
