@@ -44,7 +44,12 @@ public class LoanCommandHandler :
 
         var loan = book.LoanTo(user);
             
-        await _bookRepository.Update(book);
+        var updateSuccess = await _bookRepository.Update(book);
+        
+        if (!updateSuccess)
+        {
+            return ResultViewModel<LoanViewModel>.Error("Failed to update book status.");
+        }
             
         var result = await _loanRepository.Add(loan);
             
@@ -68,9 +73,9 @@ public class LoanCommandHandler :
 
         book.Return();
             
-        var result = await _bookRepository.Update(book);
-            
-        if (result == null)
+        var updateSuccess = await _bookRepository.Update(book);
+        
+        if (!updateSuccess)
         {
             return ResultViewModel.Error("Failed to update book status.");
         }

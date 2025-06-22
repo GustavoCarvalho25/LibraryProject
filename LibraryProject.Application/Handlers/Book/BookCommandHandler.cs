@@ -48,14 +48,15 @@ public class BookCommandHandler :
         
         updatedBook.Id = existingBook.Id;
         
-        var result = await _bookRepository.Update(updatedBook);
+        var updateSuccess = await _bookRepository.Update(updatedBook);
         
-        if (result is null)
+        if (!updateSuccess)
         {
             return ResultViewModel<BookViewModel>.Error("Failed to update book.");
         }
         
-        return ResultViewModel<BookViewModel>.Success(_mapper.Map<BookViewModel>(result));
+        var updatedBookFromDb = await _bookRepository.GetById(updatedBook.Id);
+        return ResultViewModel<BookViewModel>.Success(_mapper.Map<BookViewModel>(updatedBookFromDb));
     }
     
     public async Task<ResultViewModel> Handle(RemoveBookCommand request, CancellationToken cancellationToken)
@@ -72,7 +73,12 @@ public class BookCommandHandler :
             return ResultViewModel.Error("Cannot remove a book that is currently loaned.");
         }
         
-        await _bookRepository.Remove(existingBook);
+        var removeSuccess = await _bookRepository.Remove(existingBook);
+        
+        if (!removeSuccess)
+        {
+            return ResultViewModel.Error("Failed to remove book.");
+        }
         
         return ResultViewModel.Success();
     }

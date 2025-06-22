@@ -1,53 +1,102 @@
+using System.Linq.Expressions;
 using Core.Entities;
 using Core.Repository;
 using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using DynamicLinq = System.Linq.Dynamic.Core;
 
 namespace Infrastructure.Repositories;
 
 public class BaseRepository<TEntity> : IBaseRepository<TEntity>, IAsyncDisposable where TEntity : Entity
 {
-    private readonly LibraryDbContext _context;
+    protected readonly LibraryDbContext _context;
+    protected readonly DbSet<TEntity> _dbSet;
 
     public BaseRepository(LibraryDbContext context)
     {
         _context = context;
+        _dbSet = _context.Set<TEntity>();
     }
 
-    public async Task<TEntity> Add(TEntity entity)
+    public virtual async Task<TEntity> Add(TEntity entity)
     {
-        _context.Set<TEntity>().Add(entity);
+        _dbSet.Add(entity);
         await _context.SaveChangesAsync();
-        return await Task.FromResult(entity);
-    }
-
-    public async Task<TEntity> Update(TEntity entity)
-    {
-        _context.Set<TEntity>().Update(entity);
-        await _context.SaveChangesAsync();
-        return await Task.FromResult(entity);
-    }
-
-    public async Task<TEntity> Remove(TEntity entity)
-    {
-        _context.Set<TEntity>().Remove(entity);
-        await _context.SaveChangesAsync();
-        return await Task.FromResult(entity);
-    }
-
-    public async Task<TEntity> GetById(Guid id)
-    {
-        var entity = await _context.FindAsync<TEntity>(id);
-        
-        if (entity == null)
-            throw new KeyNotFoundException($"Entity with ID {id} not found.");
-        
         return entity;
     }
 
-    public async Task<IEnumerable<TEntity>> GetAll()
+    public virtual async Task<bool> Update(TEntity entity)
     {
-        return await _context.Set<TEntity>().ToListAsync();
+        _dbSet.Update(entity);
+        return await _context.SaveChangesAsync() > 0;
+    }
+
+    public virtual async Task<bool> Remove(TEntity entity)
+    {
+        _dbSet.Remove(entity);
+        return await _context.SaveChangesAsync() > 0;
+    }
+
+    public virtual async Task<TEntity?> GetById(Guid id)
+    {
+        return await _dbSet.FindAsync(id);
+    }
+
+    public virtual async Task<IEnumerable<TEntity>> GetAll()
+    {
+        return await _dbSet.ToListAsync();
+    }
+    
+    public virtual async Task<Core.Shared.PagedResult<TEntity>> GetPagedAsync(
+        Core.Shared.QueryOptions options,
+        Expression<Func<TEntity, bool>>? filter = null,
+        CancellationToken cancellationToken = default)
+    {
+        var query = _dbSet.AsQueryable();
+        
+        if (filter != null)
+            query = query.Where(filter);
+        
+        var totalCount = await query.CountAsync(cancellationToken);
+        
+        if (!string.IsNullOrWhiteSpace(options.OrderBy))
+        {
+            try
+            {
+                var propertyExists = typeof(TEntity).GetProperties()
+                    .Any(p => string.Equals(p.Name, options.OrderBy, StringComparison.OrdinalIgnoreCase));
+                
+                if (propertyExists)
+                {
+                    query = options.OrderByDescending
+                        ? DynamicLinq.DynamicQueryableExtensions.OrderBy(query, $"{options.OrderBy} DESC")
+                        : DynamicLinq.DynamicQueryableExtensions.OrderBy(query, options.OrderBy);
+                }
+                else
+                {
+                    query = options.OrderByDescending
+                        ? query.OrderByDescending(e => e.Id)
+                        : query.OrderBy(e => e.Id);
+                }
+            }
+            catch
+            {
+                query = options.OrderByDescending
+                    ? query.OrderByDescending(e => e.Id)
+                    : query.OrderBy(e => e.Id);
+            }
+        }
+        else
+        {
+            query = query.OrderBy(e => e.Id);
+        }
+        
+        var items = await query
+            .Skip((options.PageNumber - 1) * options.PageSize)
+            .Take(options.PageSize)
+            .ToListAsync(cancellationToken);
+        
+        return new Core.Shared.PagedResult<TEntity>(items, totalCount, options.PageNumber, options.PageSize);
     }
 
     public async ValueTask DisposeAsync()
@@ -57,6 +106,6 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity>, IAsyncDisposabl
     
     public void Dispose()
     {
-        _context.Dispose();
+        _context?.Dispose();
     }
 }

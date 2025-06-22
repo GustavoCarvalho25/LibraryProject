@@ -2,14 +2,15 @@ using Application.Models;
 using Application.Queries.Books;
 using AutoMapper;
 using Core.Repository;
+using Core.Shared;
 using MediatR;
 
 namespace Application.Handlers;
 
 public class BookQueryHandler : 
     IRequestHandler<GetBookByIdQuery, ResultViewModel<BookViewModel>>,
-    IRequestHandler<GetAllBooksQuery, ResultViewModel<IEnumerable<BookViewModel>>>,
-    IRequestHandler<GetBooksByAuthorQuery, ResultViewModel<IEnumerable<BookViewModel>>>
+    IRequestHandler<GetAllBooksQuery, ResultViewModel<PagedResult<BookViewModel>>>,
+    IRequestHandler<GetBooksByAuthorQuery, ResultViewModel<PagedResult<BookViewModel>>>
 {
     private readonly IBookRepository _bookRepository;
     private readonly IMapper _mapper;
@@ -33,29 +34,59 @@ public class BookQueryHandler :
         return ResultViewModel<BookViewModel>.Success(bookViewModel);
     }
 
-    public async Task<ResultViewModel<IEnumerable<BookViewModel>>> Handle(GetAllBooksQuery request, CancellationToken cancellationToken)
+    public async Task<ResultViewModel<PagedResult<BookViewModel>>> Handle(GetAllBooksQuery request, CancellationToken cancellationToken)
     {
-        var books = await _bookRepository.GetAll();
-        
-        if (books == null || !books.Any())
+        try
         {
-            return ResultViewModel<IEnumerable<BookViewModel>>.Success(new List<BookViewModel>());
+            // Usar o método paginado do repositório
+            var pagedBooks = await _bookRepository.GetPagedAsync(
+                request.Options,
+                null, // sem filtro adicional
+                cancellationToken);
+            
+            // Mapear os resultados
+            var bookViewModels = _mapper.Map<IEnumerable<BookViewModel>>(pagedBooks.Items);
+            
+            // Criar o resultado paginado com os ViewModels
+            var pagedResult = new PagedResult<BookViewModel>(
+                bookViewModels,
+                pagedBooks.TotalCount,
+                pagedBooks.PageNumber,
+                pagedBooks.PageSize);
+            
+            return ResultViewModel<PagedResult<BookViewModel>>.Success(pagedResult);
         }
-        
-        var bookViewModels = _mapper.Map<IEnumerable<BookViewModel>>(books);
-        return ResultViewModel<IEnumerable<BookViewModel>>.Success(bookViewModels);
+        catch (Exception ex)
+        {
+            return ResultViewModel<PagedResult<BookViewModel>>.Error(ex.Message);
+        }
     }
 
-    public async Task<ResultViewModel<IEnumerable<BookViewModel>>> Handle(GetBooksByAuthorQuery request, CancellationToken cancellationToken)
+    public async Task<ResultViewModel<PagedResult<BookViewModel>>> Handle(GetBooksByAuthorQuery request, CancellationToken cancellationToken)
     {
-        var books = await _bookRepository.GetBooksByAuthor(request.AuthorName);
-        
-        if (books == null || !books.Any())
+        try
         {
-            return ResultViewModel<IEnumerable<BookViewModel>>.Success(new List<BookViewModel>());
+            // Usar o método paginado com filtro por autor
+            var pagedBooks = await _bookRepository.GetPagedAsync(
+                request.Options,
+                book => book.Author.Contains(request.AuthorName),
+                cancellationToken);
+            
+            // Mapear os resultados
+            var bookViewModels = _mapper.Map<IEnumerable<BookViewModel>>(pagedBooks.Items);
+            
+            // Criar o resultado paginado com os ViewModels
+            var pagedResult = new PagedResult<BookViewModel>(
+                bookViewModels,
+                pagedBooks.TotalCount,
+                pagedBooks.PageNumber,
+                pagedBooks.PageSize);
+            
+            return ResultViewModel<PagedResult<BookViewModel>>.Success(pagedResult);
         }
-        
-        var bookViewModels = _mapper.Map<IEnumerable<BookViewModel>>(books);
-        return ResultViewModel<IEnumerable<BookViewModel>>.Success(bookViewModels);
+        catch (Exception ex)
+        {
+            return ResultViewModel<PagedResult<BookViewModel>>.Error(ex.Message);
+        }
     }
 }

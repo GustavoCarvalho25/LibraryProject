@@ -1,6 +1,8 @@
 using Application.Commands.Books;
 using Application.Models;
 using Application.Queries.Books;
+using Core.Shared;
+using LibraryProject.ModelBinders;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,10 +19,10 @@ public class BookController : ControllerBase
     }
     
     [HttpGet]
-    [ProducesResponseType(typeof(ResultViewModel<IEnumerable<BookViewModel>>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetAll()
+    [ProducesResponseType(typeof(ResultViewModel<PagedResult<BookViewModel>>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetAll([ModelBinder(typeof(QueryOptionsModelBinder))] QueryOptions options)
     {
-        var query = new GetAllBooksQuery();
+        var query = new GetAllBooksQuery(options);
         var result = await _mediator.Send(query);
         
         if (result.IsSuccess)
@@ -44,10 +46,10 @@ public class BookController : ControllerBase
     }
     
     [HttpGet("author/{authorName}")]
-    [ProducesResponseType(typeof(ResultViewModel<IEnumerable<BookViewModel>>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetByAuthor(string authorName)
+    [ProducesResponseType(typeof(ResultViewModel<PagedResult<BookViewModel>>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetByAuthor([ModelBinder(typeof(QueryOptionsModelBinder))] QueryOptions options, string authorName)
     {
-        var query = new GetBooksByAuthorQuery(authorName);
+        var query = new GetBooksByAuthorQuery(authorName, options);
         var result = await _mediator.Send(query);
         
         if (result.IsSuccess)
