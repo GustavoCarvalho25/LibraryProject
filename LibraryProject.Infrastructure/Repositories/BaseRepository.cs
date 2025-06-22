@@ -14,25 +14,25 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity>, IAsyncDisposabl
         _context = context;
     }
 
-    public Task<TEntity> Add(TEntity entity)
+    public async Task<TEntity> Add(TEntity entity)
     {
         _context.Set<TEntity>().Add(entity);
-        _context.SaveChangesAsync();
-        return Task.FromResult(entity);
+        await _context.SaveChangesAsync();
+        return await Task.FromResult(entity);
     }
 
-    public Task<TEntity> Update(TEntity entity)
+    public async Task<TEntity> Update(TEntity entity)
     {
         _context.Set<TEntity>().Update(entity);
-        _context.SaveChangesAsync();
-        return Task.FromResult(entity);
+        await _context.SaveChangesAsync();
+        return await Task.FromResult(entity);
     }
 
-    public Task<TEntity> Remove(TEntity entity)
+    public async Task<TEntity> Remove(TEntity entity)
     {
         _context.Set<TEntity>().Remove(entity);
-        _context.SaveChangesAsync();
-        return Task.FromResult(entity);
+        await _context.SaveChangesAsync();
+        return await Task.FromResult(entity);
     }
 
     public async Task<TEntity> GetById(Guid id)
