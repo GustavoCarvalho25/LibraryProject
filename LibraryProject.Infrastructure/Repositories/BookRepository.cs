@@ -15,7 +15,9 @@ public class BookRepository : BaseRepository<Book>, IBookRepository
     }
 
     public async Task<IEnumerable<Book>> GetBooksByAuthor(string authorName)
-    => await _context.Books
-        .Where(b => b.Author.Contains(authorName))
-        .ToListAsync();
+    {
+        return await _context.Books
+            .Where(b => b.Author.Contains(authorName))
+            .ToListAsync();
+    }
 }

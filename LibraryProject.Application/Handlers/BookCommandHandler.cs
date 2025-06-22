@@ -1,35 +1,30 @@
 using Application.Commands.Books;
-using Application.Commands.Books.DeleteBookCommand;
-using Application.Commands.Books.UpdateBookCommand;
 using Application.Models;
+using AutoMapper;
 using Core.Entities;
 using Core.Repository;
 using MediatR;
 
 namespace Application.Handlers;
 
-public class BookCommandHandler
-    : IRequestHandler<AddBookCommand, ResultViewModel<BookViewModel>>,
+public class BookCommandHandler : 
+    IRequestHandler<AddBookCommand, ResultViewModel<BookViewModel>>,
     IRequestHandler<UpdateBookCommand, ResultViewModel<BookViewModel>>,
-    IRequestHandler<DeleteBookCommand,ResultViewModel<BookViewModel>>
+    IRequestHandler<RemoveBookCommand, ResultViewModel>
 {
     private readonly IBookRepository _bookRepository;
+    private readonly IMapper _mapper;
 
-    public BookCommandHandler(IBookRepository bookRepository)
+    public BookCommandHandler(IBookRepository bookRepository, IMapper mapper)
     {
         _bookRepository = bookRepository;
+        _mapper = mapper;
     }
 
     public async Task<ResultViewModel<BookViewModel>> Handle(AddBookCommand request, CancellationToken cancellationToken)
     {
-        var book = new Book
-        (
-            request.Title,
-            request.Author,
-            request.ISBN,
-            request.PublicationYear
-        );
-
+        var book = _mapper.Map<Book>(request);
+        
         var result = await _bookRepository.Add(book);
         
         if (result is null)
@@ -37,46 +32,57 @@ public class BookCommandHandler
             return ResultViewModel<BookViewModel>.Error("Failed to add book.");
         }
 
-        return ResultViewModel<BookViewModel>.Success(BookViewModel.ToViewModel(book));
+        return ResultViewModel<BookViewModel>.Success(_mapper.Map<BookViewModel>(result));
     }
-
+    
     public async Task<ResultViewModel<BookViewModel>> Handle(UpdateBookCommand request, CancellationToken cancellationToken)
     {
-        var book = await _bookRepository.GetById(request.Id);
+        var existingBook = await _bookRepository.GetById(request.Id);
         
-        if (book is null)
+        if (existingBook == null)
         {
-            return await Task.FromResult(ResultViewModel<BookViewModel>.Error("Book not found."));
+            return ResultViewModel<BookViewModel>.Error($"Book with ID {request.Id} not found.");
         }
         
-        book.Update(request.Title, request.Author, request.Isbn, request.PublicationYear);
+        // Atualizar as propriedades do livro existente
+        var updatedBook = new Book(
+            request.Title,
+            request.Author,
+            request.ISBN,
+            request.PublicationYear,
+            existingBook.IsAvailable
+        );
         
-        var result = await _bookRepository.Update(book);
+        // Manter o mesmo ID
+        updatedBook.Id = existingBook.Id;
+        
+        var result = await _bookRepository.Update(updatedBook);
         
         if (result is null)
         {
-            return await Task.FromResult(ResultViewModel<BookViewModel>.Error("Failed to update book."));
+            return ResultViewModel<BookViewModel>.Error("Failed to update book.");
         }
         
-        return await Task.FromResult(ResultViewModel<BookViewModel>.Success(BookViewModel.ToViewModel(book)));
+        return ResultViewModel<BookViewModel>.Success(_mapper.Map<BookViewModel>(result));
     }
-
-    public Task<ResultViewModel<BookViewModel>> Handle(DeleteBookCommand request, CancellationToken cancellationToken)
+    
+    public async Task<ResultViewModel> Handle(RemoveBookCommand request, CancellationToken cancellationToken)
     {
-        var book = _bookRepository.GetById(request.Id);
+        var existingBook = await _bookRepository.GetById(request.Id);
         
-        if (book is null)
+        if (existingBook == null)
         {
-            return Task.FromResult(ResultViewModel<BookViewModel>.Error("Book not found."));
+            return ResultViewModel.Error($"Book with ID {request.Id} not found.");
         }
         
-        var result = _bookRepository.Remove(book.Result);
-        
-        if (result is null)
+        // Verificar se o livro pode ser removido (não está emprestado)
+        if (!existingBook.IsAvailable)
         {
-            return Task.FromResult(ResultViewModel<BookViewModel>.Error("Failed to delete book."));
+            return ResultViewModel.Error("Cannot remove a book that is currently loaned.");
         }
         
-        return Task.FromResult(ResultViewModel<BookViewModel>.Success(BookViewModel.ToViewModel(book.Result)));
+        await _bookRepository.Remove(existingBook);
+        
+        return ResultViewModel.Success();
     }
 }
