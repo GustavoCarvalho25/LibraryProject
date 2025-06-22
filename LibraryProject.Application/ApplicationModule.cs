@@ -10,7 +10,8 @@ public static class ApplicationModule
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
         services.AddHandlers()
-            .AddValidations();
+            .AddValidations()
+            .AddMappings();
         
         return services;
     }
@@ -27,6 +28,13 @@ public static class ApplicationModule
     {
         services.AddFluentValidationAutoValidation()
             .AddValidatorsFromAssemblyContaining<AddBookCommandValidation>();
+        
+        return services;
+    }
+    
+    private static IServiceCollection AddMappings(this IServiceCollection services)
+    {
+        services.AddAutoMapper(typeof(ApplicationModule).Assembly);
         
         return services;
     }
