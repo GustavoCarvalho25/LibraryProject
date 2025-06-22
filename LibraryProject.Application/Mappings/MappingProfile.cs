@@ -1,5 +1,7 @@
 using Application.Commands.Books;
+using Application.Commands.Users;
 using Application.Models;
+using Application.ViewModels;
 using AutoMapper;
 using Core.Entities;
 
@@ -21,5 +23,15 @@ public class MappingProfile : Profile
         CreateMap<Loan, LoanViewModel>()
             .ForMember(dest => dest.CustomerName, opt => opt.MapFrom(src => src.Customer.Name))
             .ForMember(dest => dest.BookTitle, opt => opt.MapFrom(src => src.Book.Title));
+            
+        CreateMap<User, UserViewModel>()
+            .ForMember(dest => dest.ActiveLoans, opt => opt.MapFrom(src => 
+                src.Loans != null ? src.Loans.Count(l => l.ReturnDate == null) : 0));
+            
+        CreateMap<AddUserCommand, User>()
+            .ConstructUsing(cmd => new User(cmd.Name, cmd.Email));
+            
+        CreateMap<UpdateUserCommand, User>()
+            .ConstructUsing(cmd => new User(cmd.Name, cmd.Email));
     }
 }

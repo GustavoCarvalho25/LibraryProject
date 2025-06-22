@@ -34,7 +34,7 @@ public class Book : Entity
             throw new InvalidOperationException("Book is not available for loan");
             
         IsAvailable = false;
-        var loan = new Loan(user.Id, user, Id, this, DateTime.Now);
+        var loan = new Loan(user.Id, Id, DateTime.Now);
         
         if (Loans == null)
             Loans = new List<Loan>();
