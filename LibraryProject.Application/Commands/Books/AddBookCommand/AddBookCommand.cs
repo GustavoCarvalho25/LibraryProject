@@ -19,5 +19,4 @@ public class AddBookCommand : IRequest<ResultViewModel<BookViewModel>>
         ISBN = isbn;
         PublicationYear = publicationYear;
     }
-    
 }
