@@ -1,7 +1,7 @@
 using Application.Models;
 using MediatR;
 
-namespace Application.Commands.Books;
+namespace Application.Commands.Books.RemoveBookCommand;
 
 public class RemoveBookCommand : IRequest<ResultViewModel>
 {

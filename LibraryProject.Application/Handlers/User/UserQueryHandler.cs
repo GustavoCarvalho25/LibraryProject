@@ -5,7 +5,6 @@ using AutoMapper;
 using Core.Repository;
 using Core.Shared;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 
 namespace Application.Handlers.User;
 

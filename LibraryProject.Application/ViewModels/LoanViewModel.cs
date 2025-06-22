@@ -1,6 +1,6 @@
 using Core.Entities;
 
-namespace Application.Models;
+namespace Application.ViewModels;
 
 public class LoanViewModel
 {
@@ -10,8 +10,11 @@ public class LoanViewModel
     public Guid BookId { get; private set; }
     public string BookTitle { get; private set; }
     public DateTime LoanDate { get; private set; }
+    public DateTime DueDate { get; private set; }
+    public DateTime? ReturnDate { get; private set; }
+    public bool IsOverdue => ReturnDate == null && DateTime.Now > DueDate;
     
-    public LoanViewModel(Guid id, Guid customerId, string customerName, Guid bookId, string bookTitle, DateTime loanDate)
+    public LoanViewModel(Guid id, Guid customerId, string customerName, Guid bookId, string bookTitle, DateTime loanDate, DateTime dueDate, DateTime? returnDate = null)
     {
         Id = id;
         CustomerId = customerId;
@@ -19,5 +22,7 @@ public class LoanViewModel
         BookId = bookId;
         BookTitle = bookTitle;
         LoanDate = loanDate;
+        DueDate = dueDate;
+        ReturnDate = returnDate;
     }
 }

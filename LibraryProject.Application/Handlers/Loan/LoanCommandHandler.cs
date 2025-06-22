@@ -1,11 +1,12 @@
-using Application.Commands.Books;
+using Application.Commands.Books.LoanBookCommand;
+using Application.Commands.Books.ReturnBookCommand;
 using Application.Models;
+using Application.ViewModels;
 using AutoMapper;
-using Core.Entities;
 using Core.Repository;
 using MediatR;
 
-namespace Application.Handlers;
+namespace Application.Handlers.Loan;
 
 public class LoanCommandHandler : 
     IRequestHandler<LoanBookCommand, ResultViewModel<LoanViewModel>>,
@@ -42,6 +43,11 @@ public class LoanCommandHandler :
             return ResultViewModel<LoanViewModel>.Error($"User with ID {request.UserId} not found.");
         }
 
+        if (!book.IsAvailable)
+        {
+            return ResultViewModel<LoanViewModel>.Error("Book is not available for loan.");
+        }
+
         var loan = book.LoanTo(user);
             
         var updateSuccess = await _bookRepository.Update(book);
@@ -71,13 +77,26 @@ public class LoanCommandHandler :
             return ResultViewModel.Error($"Book with ID {request.BookId} not found.");
         }
 
+        if (book.IsAvailable)
+        {
+            return ResultViewModel.Error("This book is already available and cannot be returned.");
+        }
+
+        var activeLoan = await _loanRepository.GetActiveLoanByBookId(request.BookId);
+        if (activeLoan == null)
+        {
+            return ResultViewModel.Error("No active loan found for this book.");
+        }
+
+        activeLoan.Return();
         book.Return();
             
-        var updateSuccess = await _bookRepository.Update(book);
+        var bookUpdateSuccess = await _bookRepository.Update(book);
+        var loanUpdateSuccess = await _loanRepository.Update(activeLoan);
         
-        if (!updateSuccess)
+        if (!bookUpdateSuccess || !loanUpdateSuccess)
         {
-            return ResultViewModel.Error("Failed to update book status.");
+            return ResultViewModel.Error("Failed to update book or loan status.");
         }
 
         return ResultViewModel.Success();

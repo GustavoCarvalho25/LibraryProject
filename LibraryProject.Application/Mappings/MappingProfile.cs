@@ -1,5 +1,7 @@
-using Application.Commands.Books;
-using Application.Commands.Users;
+using Application.Commands.Books.AddBookCommand;
+using Application.Commands.Books.UpdateBookCommand;
+using Application.Commands.Users.AddUserCommand;
+using Application.Commands.Users.UpdateUserCommand;
 using Application.Models;
 using Application.ViewModels;
 using AutoMapper;
@@ -22,7 +24,8 @@ public class MappingProfile : Profile
             
         CreateMap<Loan, LoanViewModel>()
             .ForMember(dest => dest.CustomerName, opt => opt.MapFrom(src => src.Customer.Name))
-            .ForMember(dest => dest.BookTitle, opt => opt.MapFrom(src => src.Book.Title));
+            .ForMember(dest => dest.BookTitle, opt => opt.MapFrom(src => src.Book.Title))
+            .ForMember(dest => dest.DueDate, opt => opt.MapFrom(src => src.LoanDate.AddDays(14)));
             
         CreateMap<User, UserViewModel>()
             .ForMember(dest => dest.ActiveLoans, opt => opt.MapFrom(src => 

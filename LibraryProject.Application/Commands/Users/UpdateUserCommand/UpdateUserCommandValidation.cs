@@ -1,11 +1,14 @@
 using FluentValidation;
 
-namespace Application.Commands.Users;
+namespace Application.Commands.Users.UpdateUserCommand;
 
-public class AddUserCommandValidation : AbstractValidator<AddUserCommand>
+public class UpdateUserCommandValidation : AbstractValidator<UpdateUserCommand>
 {
-    public AddUserCommandValidation()
+    public UpdateUserCommandValidation()
     {
+        RuleFor(x => x.Id)
+            .NotEmpty().WithMessage("O ID do usuário é obrigatório");
+            
         RuleFor(x => x.Name)
             .NotEmpty().WithMessage("O nome do usuário é obrigatório")
             .Length(3, 100).WithMessage("O nome deve ter entre 3 e 100 caracteres");

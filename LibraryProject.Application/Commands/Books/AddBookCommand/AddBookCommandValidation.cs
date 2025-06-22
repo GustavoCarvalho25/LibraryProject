@@ -1,6 +1,6 @@
 using FluentValidation;
 
-namespace Application.Commands.Books;
+namespace Application.Commands.Books.AddBookCommand;
 
 public class AddBookCommandValidation : AbstractValidator<AddBookCommand>
 {

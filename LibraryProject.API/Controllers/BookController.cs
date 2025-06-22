@@ -1,6 +1,11 @@
-using Application.Commands.Books;
+using Application.Commands.Books.AddBookCommand;
+using Application.Commands.Books.LoanBookCommand;
+using Application.Commands.Books.RemoveBookCommand;
+using Application.Commands.Books.ReturnBookCommand;
+using Application.Commands.Books.UpdateBookCommand;
 using Application.Models;
 using Application.Queries.Books;
+using Application.ViewModels;
 using Core.Shared;
 using LibraryProject.ModelBinders;
 using MediatR;

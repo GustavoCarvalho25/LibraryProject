@@ -1,8 +1,9 @@
-using Application.Commands.Users;
+using Application.Commands.Users.AddUserCommand;
+using Application.Commands.Users.RemoveUserCommand;
+using Application.Commands.Users.UpdateUserCommand;
 using Application.Models;
 using Application.ViewModels;
 using AutoMapper;
-using Core.Entities;
 using Core.Repository;
 using MediatR;
 

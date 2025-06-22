@@ -1,6 +1,6 @@
 using FluentValidation;
 
-namespace Application.Commands.Books;
+namespace Application.Commands.Books.LoanBookCommand;
 
 public class LoanBookCommandValidation : AbstractValidator<LoanBookCommand>
 {

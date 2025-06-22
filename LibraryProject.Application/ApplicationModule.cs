@@ -1,4 +1,5 @@
 using Application.Commands.Books;
+using Application.Commands.Books.AddBookCommand;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.Extensions.DependencyInjection;

@@ -2,7 +2,7 @@ using Application.Models;
 using Application.ViewModels;
 using MediatR;
 
-namespace Application.Commands.Users;
+namespace Application.Commands.Users.UpdateUserCommand;
 
 public class UpdateUserCommand : IRequest<ResultViewModel<UserViewModel>>
 {

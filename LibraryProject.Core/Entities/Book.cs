@@ -1,3 +1,4 @@
+using Core.Events;
 using Core.ValueObjects;
 
 namespace Core.Entities;
@@ -11,16 +12,17 @@ public class Book : Entity
     public bool IsAvailable { get; private set; } = true;
     public virtual List<Loan>? Loans { get; set; }
     
-    public Book(string title, string author, string isbn, int publicationYear, bool isAvailable = true)
+    protected Book() {}
+    
+    public Book(string title, string author, string isbn, int publicationYear) : base()
     {
         Title = title;
         Author = author;
         ISBN = new ISBN(isbn);
         PublicationYear = publicationYear;
-        IsAvailable = isAvailable;
     }
     
-    public Book(string title, string author, string isbn, int publicationYear)
+    public void Update(string title, string author, string isbn, int publicationYear)
     {
         Title = title;
         Author = author;
@@ -40,6 +42,11 @@ public class Book : Entity
             Loans = new List<Loan>();
             
         Loans.Add(loan);
+        
+        // Adicionar evento de domínio
+        var dueDate = DateTime.Now.AddDays(14); // 14 dias para devolução
+        AddDomainEvent(new BookLoanedEvent(Id, user.Id, DateTime.Now, dueDate));
+        
         return loan;
     }
     

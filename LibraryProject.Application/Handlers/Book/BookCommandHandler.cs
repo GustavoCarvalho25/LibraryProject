@@ -1,11 +1,12 @@
-using Application.Commands.Books;
+using Application.Commands.Books.AddBookCommand;
+using Application.Commands.Books.RemoveBookCommand;
+using Application.Commands.Books.UpdateBookCommand;
 using Application.Models;
 using AutoMapper;
-using Core.Entities;
 using Core.Repository;
 using MediatR;
 
-namespace Application.Handlers;
+namespace Application.Handlers.Book;
 
 public class BookCommandHandler : 
     IRequestHandler<AddBookCommand, ResultViewModel<BookViewModel>>,
@@ -23,7 +24,7 @@ public class BookCommandHandler :
 
     public async Task<ResultViewModel<BookViewModel>> Handle(AddBookCommand request, CancellationToken cancellationToken)
     {
-        var book = _mapper.Map<Book>(request);
+        var book = _mapper.Map<Core.Entities.Book>(request);
         
         var result = await _bookRepository.Add(book);
         
@@ -44,7 +45,7 @@ public class BookCommandHandler :
             return ResultViewModel<BookViewModel>.Error($"Book with ID {request.Id} not found.");
         }
         
-        var updatedBook = _mapper.Map<Book>(request);
+        var updatedBook = _mapper.Map<Core.Entities.Book>(request);
         
         updatedBook.Id = existingBook.Id;
         

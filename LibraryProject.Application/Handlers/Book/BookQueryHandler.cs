@@ -5,7 +5,7 @@ using Core.Repository;
 using Core.Shared;
 using MediatR;
 
-namespace Application.Handlers;
+namespace Application.Handlers.Book;
 
 public class BookQueryHandler : 
     IRequestHandler<GetBookByIdQuery, ResultViewModel<BookViewModel>>,

@@ -1,5 +1,6 @@
-using Core.Entities;
 using Core.Repository;
+using Core.Events;
+using Infrastructure.Events;
 using Infrastructure.Persistence;
 using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -14,7 +15,8 @@ public static class InfrastructureModule
     {
         services
             .AddDatabase(configuration)
-            .AddRepositories();
+            .AddRepositories()
+            .AddDomainEvents();
         
         return services;
     }
@@ -31,6 +33,13 @@ public static class InfrastructureModule
         services.AddScoped<IBookRepository, BookRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<ILoanRepository, LoanRepository>();
+        
+        return services;
+    }
+    
+    private static IServiceCollection AddDomainEvents(this IServiceCollection services)
+    {
+        services.AddScoped<IDomainEventPublisher, DomainEventPublisher>();
         
         return services;
     }

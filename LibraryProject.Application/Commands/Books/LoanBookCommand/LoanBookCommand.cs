@@ -1,7 +1,8 @@
 using Application.Models;
+using Application.ViewModels;
 using MediatR;
 
-namespace Application.Commands.Books;
+namespace Application.Commands.Books.LoanBookCommand;
 
 public class LoanBookCommand : IRequest<ResultViewModel<LoanViewModel>>
 {

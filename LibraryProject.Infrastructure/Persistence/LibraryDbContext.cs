@@ -1,15 +1,46 @@
 using Core.Entities;
+using Core.Events;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Persistence;
 
 public class LibraryDbContext : DbContext
 {
+    private readonly IDomainEventPublisher? _domainEventPublisher;
+    
     public DbSet<User> Users { get; set; }
     public DbSet<Book> Books { get; set; }
     public DbSet<Loan> Loans { get; set; }
     
     public LibraryDbContext(DbContextOptions<LibraryDbContext> options) : base(options) {}
+    
+    public LibraryDbContext(
+        DbContextOptions<LibraryDbContext> options,
+        IDomainEventPublisher domainEventPublisher) : base(options)
+    {
+        _domainEventPublisher = domainEventPublisher;
+    }
+    
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        var entitiesWithEvents = ChangeTracker.Entries<Entity>()
+            .Select(e => e.Entity)
+            .Where(e => e.DomainEvents.Any())
+            .ToList();
+            
+        var result = await base.SaveChangesAsync(cancellationToken);
+        
+        if (result > 0 && _domainEventPublisher != null && entitiesWithEvents.Any())
+        {
+            foreach (var entity in entitiesWithEvents)
+            {
+                await _domainEventPublisher.PublishEventsAsync(entity.DomainEvents, cancellationToken);
+                entity.ClearDomainEvents();
+            }
+        }
+        
+        return result;
+    }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

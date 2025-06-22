@@ -2,7 +2,7 @@ using Application.Models;
 using Application.ViewModels;
 using MediatR;
 
-namespace Application.Commands.Users;
+namespace Application.Commands.Users.AddUserCommand;
 
 public class AddUserCommand : IRequest<ResultViewModel<UserViewModel>>
 {

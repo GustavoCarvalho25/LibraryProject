@@ -18,4 +18,9 @@ public class LoanRepository : BaseRepository<Loan>, ILoanRepository
     => await _context.Loans
         .Where(l => l.CustomerId == userId)
         .ToListAsync();
+        
+    public async Task<Loan?> GetActiveLoanByBookId(Guid bookId)
+    => await _context.Loans
+        .Where(l => l.BookId == bookId && l.ReturnDate == null)
+        .FirstOrDefaultAsync();
 }

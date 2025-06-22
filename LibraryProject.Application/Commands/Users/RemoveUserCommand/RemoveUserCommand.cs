@@ -1,7 +1,7 @@
 using Application.Models;
 using MediatR;
 
-namespace Application.Commands.Users;
+namespace Application.Commands.Users.RemoveUserCommand;
 
 public class RemoveUserCommand : IRequest<ResultViewModel>
 {
