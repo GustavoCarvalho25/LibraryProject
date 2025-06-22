@@ -39,21 +39,13 @@ public class BookCommandHandler :
     {
         var existingBook = await _bookRepository.GetById(request.Id);
         
-        if (existingBook == null)
+        if (existingBook is null)
         {
             return ResultViewModel<BookViewModel>.Error($"Book with ID {request.Id} not found.");
         }
         
-        // Atualizar as propriedades do livro existente
-        var updatedBook = new Book(
-            request.Title,
-            request.Author,
-            request.ISBN,
-            request.PublicationYear,
-            existingBook.IsAvailable
-        );
+        var updatedBook = _mapper.Map<Book>(request);
         
-        // Manter o mesmo ID
         updatedBook.Id = existingBook.Id;
         
         var result = await _bookRepository.Update(updatedBook);
@@ -70,12 +62,11 @@ public class BookCommandHandler :
     {
         var existingBook = await _bookRepository.GetById(request.Id);
         
-        if (existingBook == null)
+        if (existingBook is null)
         {
             return ResultViewModel.Error($"Book with ID {request.Id} not found.");
         }
         
-        // Verificar se o livro pode ser removido (não está emprestado)
         if (!existingBook.IsAvailable)
         {
             return ResultViewModel.Error("Cannot remove a book that is currently loaned.");

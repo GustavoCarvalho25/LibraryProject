@@ -1,7 +1,6 @@
 using Application.Commands.Books;
 using Application.Models;
 using Application.Queries.Books;
-using Core.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 

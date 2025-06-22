@@ -42,33 +42,20 @@ public class LoanCommandHandler :
             return ResultViewModel<LoanViewModel>.Error($"User with ID {request.UserId} not found.");
         }
 
-        try
+        var loan = book.LoanTo(user);
+            
+        await _bookRepository.Update(book);
+            
+        var result = await _loanRepository.Add(loan);
+            
+        if (result == null)
         {
-            // Usar o método de domínio para emprestar o livro
-            var loan = book.LoanTo(user);
-            
-            // Atualizar o livro no repositório (agora está marcado como não disponível)
-            await _bookRepository.Update(book);
-            
-            // Salvar o empréstimo
-            await _loanRepository.Add(loan);
-            
-            // Mapear para o ViewModel
-            var loanViewModel = new LoanViewModel(
-                loan.Id,
-                loan.CustomerId,
-                user.Name,
-                loan.BookId,
-                book.Title,
-                loan.LoanDate
-            );
-            
-            return ResultViewModel<LoanViewModel>.Success(loanViewModel);
+            return ResultViewModel<LoanViewModel>.Error("Failed to create loan record.");
         }
-        catch (InvalidOperationException ex)
-        {
-            return ResultViewModel<LoanViewModel>.Error(ex.Message);
-        }
+            
+        var loanViewModel = _mapper.Map<LoanViewModel>(loan);
+            
+        return ResultViewModel<LoanViewModel>.Success(loanViewModel);
     }
 
     public async Task<ResultViewModel> Handle(ReturnBookCommand request, CancellationToken cancellationToken)
@@ -79,19 +66,15 @@ public class LoanCommandHandler :
             return ResultViewModel.Error($"Book with ID {request.BookId} not found.");
         }
 
-        try
-        {
-            // Usar o método de domínio para devolver o livro
-            book.Return();
+        book.Return();
             
-            // Atualizar o livro no repositório (agora está marcado como disponível)
-            await _bookRepository.Update(book);
+        var result = await _bookRepository.Update(book);
             
-            return ResultViewModel.Success();
-        }
-        catch (InvalidOperationException ex)
+        if (result == null)
         {
-            return ResultViewModel.Error(ex.Message);
+            return ResultViewModel.Error("Failed to update book status.");
         }
+
+        return ResultViewModel.Success();
     }
 }
