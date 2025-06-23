@@ -1,5 +1,6 @@
 using Application;
 using Infrastructure;
+using LibraryProject.Handlers;
 using LibraryProject.ModelBinders;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,6 +10,8 @@ builder.Services
     .AddInfrastructure(builder.Configuration)
     .AddApplication();
 
+
+builder.Services.AddExceptionHandler<ApiExceptionHandler>();
 builder.Services.AddControllers(options =>
 {
     options.ModelBinderProviders.Insert(0, new QueryOptionsModelBinderProvider());

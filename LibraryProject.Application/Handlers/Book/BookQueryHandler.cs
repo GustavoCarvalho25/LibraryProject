@@ -38,16 +38,13 @@ public class BookQueryHandler :
     {
         try
         {
-            // Usar o método paginado do repositório
             var pagedBooks = await _bookRepository.GetPagedAsync(
                 request.Options,
-                null, // sem filtro adicional
+                null,
                 cancellationToken);
             
-            // Mapear os resultados
             var bookViewModels = _mapper.Map<IEnumerable<BookViewModel>>(pagedBooks.Items);
             
-            // Criar o resultado paginado com os ViewModels
             var pagedResult = new PagedResult<BookViewModel>(
                 bookViewModels,
                 pagedBooks.TotalCount,

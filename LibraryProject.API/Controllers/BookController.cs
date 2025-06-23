@@ -29,11 +29,11 @@ public class BookController : ControllerBase
     {
         var query = new GetAllBooksQuery(options);
         var result = await _mediator.Send(query);
-        
-        if (result.IsSuccess)
-            return Ok(result);
+
+        if (!result.IsSuccess)
+            return BadRequest(result.Message);
             
-        return BadRequest(result.Message);
+        return Ok(result);
     }
     
     [HttpGet("{id:guid}")]
@@ -58,9 +58,9 @@ public class BookController : ControllerBase
         var result = await _mediator.Send(query);
         
         if (result.IsSuccess)
-            return Ok(result);
+            return BadRequest(result.Message);
             
-        return BadRequest(result.Message);
+        return Ok(result);
     }
     
     [HttpPost]
@@ -82,13 +82,12 @@ public class BookController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Put(Guid id, [FromBody] UpdateBookCommand command)
     {
-        if (id != command.Id)
-            return BadRequest("ID in URL does not match ID in request body");
+        command.Id = id;
             
         var result = await _mediator.Send(command);
         
         if (!result.IsSuccess)
-            return result.Message.Contains("not found") ? NotFound(result.Message) : BadRequest(result.Message);
+            return BadRequest(result.Message);
             
         return Ok(result);
     }
@@ -103,7 +102,7 @@ public class BookController : ControllerBase
         var result = await _mediator.Send(command);
         
         if (!result.IsSuccess)
-            return result.Message.Contains("not found") ? NotFound(result.Message) : BadRequest(result.Message);
+            return BadRequest(result.Message);
             
         return Ok(result);
     }
@@ -118,7 +117,7 @@ public class BookController : ControllerBase
         var result = await _mediator.Send(command);
         
         if (!result.IsSuccess)
-            return result.Message.Contains("not found") ? NotFound(result.Message) : BadRequest(result.Message);
+            return NotFound(result.Message);
             
         return Ok(result);
     }
@@ -133,7 +132,7 @@ public class BookController : ControllerBase
         var result = await _mediator.Send(command);
         
         if (!result.IsSuccess)
-            return result.Message.Contains("not found") ? NotFound(result.Message) : BadRequest(result.Message);
+            return BadRequest(result.Message);
             
         return Ok(result);
     }
