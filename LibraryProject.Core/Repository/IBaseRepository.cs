@@ -12,8 +12,8 @@ public interface IBaseRepository<TEntity> : IDisposable where TEntity : Entity
     Task<bool> Update(TEntity entity);
     Task<bool> Remove(TEntity entity);
     
-    Task<Core.Shared.PagedResult<TEntity>> GetPagedAsync(
-        Core.Shared.QueryOptions options,
+    Task<PagedResult<TEntity>> GetPagedAsync(
+        QueryOptions options,
         Expression<Func<TEntity, bool>>? filter = null,
         CancellationToken cancellationToken = default);
 }

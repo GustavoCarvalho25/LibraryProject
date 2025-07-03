@@ -57,7 +57,7 @@ public class BookController : ControllerBase
         var query = new GetBooksByAuthorQuery(authorName, options);
         var result = await _mediator.Send(query);
         
-        if (result.IsSuccess)
+        if (!result.IsSuccess)
             return BadRequest(result.Message);
             
         return Ok(result);

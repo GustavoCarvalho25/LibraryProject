@@ -1,6 +1,7 @@
 using System.Linq.Expressions;
 using Core.Entities;
 using Core.Repository;
+using Core.Shared;
 using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using DynamicLinq = System.Linq.Dynamic.Core;
@@ -47,8 +48,8 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity>, IAsyncDisposabl
         return await _dbSet.ToListAsync();
     }
     
-    public virtual async Task<Core.Shared.PagedResult<TEntity>> GetPagedAsync(
-        Core.Shared.QueryOptions options,
+    public virtual async Task<PagedResult<TEntity>> GetPagedAsync(
+        QueryOptions options,
         Expression<Func<TEntity, bool>>? filter = null,
         CancellationToken cancellationToken = default)
     {
@@ -96,7 +97,7 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity>, IAsyncDisposabl
             .Take(options.PageSize)
             .ToListAsync(cancellationToken);
         
-        return new Core.Shared.PagedResult<TEntity>(items, totalCount, options.PageNumber, options.PageSize);
+        return new PagedResult<TEntity>(items, totalCount, options.PageNumber, options.PageSize);
     }
 
     public async ValueTask DisposeAsync()

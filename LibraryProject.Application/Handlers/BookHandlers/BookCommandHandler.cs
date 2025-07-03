@@ -5,8 +5,9 @@ using Application.Models;
 using AutoMapper;
 using Core.Repository;
 using MediatR;
+using Core.Entities;
 
-namespace Application.Handlers.Book;
+namespace Application.Handlers.BookHandlers;
 
 public class BookCommandHandler : 
     IRequestHandler<AddBookCommand, ResultViewModel<BookViewModel>>,
@@ -24,14 +25,13 @@ public class BookCommandHandler :
 
     public async Task<ResultViewModel<BookViewModel>> Handle(AddBookCommand request, CancellationToken cancellationToken)
     {
-        var book = _mapper.Map<Core.Entities.Book>(request);
+        var book = _mapper.Map<Book>(request);
         
         var result = await _bookRepository.Add(book);
         
-        if (result is null)
-        {
+        //isso aqui não vai ser nulo nunca -> TODO: o que fazer para alterar o repository para retornar o saveChanges?
+        if (result is null) 
             return ResultViewModel<BookViewModel>.Error("Failed to add book.");
-        }
 
         return ResultViewModel<BookViewModel>.Success(_mapper.Map<BookViewModel>(result));
     }
@@ -41,23 +41,21 @@ public class BookCommandHandler :
         var existingBook = await _bookRepository.GetById(request.Id);
         
         if (existingBook is null)
-        {
             return ResultViewModel<BookViewModel>.Error($"Book with ID {request.Id} not found.");
-        }
         
-        var updatedBook = _mapper.Map<Core.Entities.Book>(request);
+        existingBook.Update(
+            request.Title,
+            request.Author,
+            request.ISBN,
+            request.PublicationYear
+        );
         
-        updatedBook.Id = existingBook.Id;
-        
-        var updateSuccess = await _bookRepository.Update(updatedBook);
+        var updateSuccess = await _bookRepository.Update(existingBook);
         
         if (!updateSuccess)
-        {
             return ResultViewModel<BookViewModel>.Error("Failed to update book.");
-        }
         
-        var updatedBookFromDb = await _bookRepository.GetById(updatedBook.Id);
-        return ResultViewModel<BookViewModel>.Success(_mapper.Map<BookViewModel>(updatedBookFromDb));
+        return ResultViewModel<BookViewModel>.Success(_mapper.Map<BookViewModel>(existingBook));
     }
     
     public async Task<ResultViewModel> Handle(RemoveBookCommand request, CancellationToken cancellationToken)
@@ -65,21 +63,15 @@ public class BookCommandHandler :
         var existingBook = await _bookRepository.GetById(request.Id);
         
         if (existingBook is null)
-        {
             return ResultViewModel.Error($"Book with ID {request.Id} not found.");
-        }
         
         if (!existingBook.IsAvailable)
-        {
             return ResultViewModel.Error("Cannot remove a book that is currently loaned.");
-        }
         
         var removeSuccess = await _bookRepository.Remove(existingBook);
         
         if (!removeSuccess)
-        {
             return ResultViewModel.Error("Failed to remove book.");
-        }
         
         return ResultViewModel.Success();
     }

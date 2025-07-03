@@ -43,8 +43,7 @@ public class Book : Entity
             
         Loans.Add(loan);
         
-        // Adicionar evento de domínio
-        var dueDate = DateTime.Now.AddDays(14); // 14 dias para devolução
+        var dueDate = DateTime.Now.AddDays(14);
         AddDomainEvent(new BookLoanedEvent(Id, user.Id, DateTime.Now, dueDate));
         
         return loan;
