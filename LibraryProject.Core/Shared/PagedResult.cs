@@ -18,4 +18,13 @@ public class PagedResult<T>
         PageSize = pageSize;
         TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
     }
+
+    public static PagedResult<TDestination> From<TSource, TDestination>(
+        IEnumerable<TDestination> items,
+        PagedResult<TSource> source)
+    => new PagedResult<TDestination>(
+        items,
+        source.TotalCount,
+        source.PageNumber,
+        source.PageSize);
 }
