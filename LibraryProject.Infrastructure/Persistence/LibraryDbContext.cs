@@ -58,6 +58,11 @@ public class LibraryDbContext : DbContext
             e.HasMany(b => b.Loans)
                 .WithOne(l => l.Book)
                 .HasForeignKey(l => l.BookId);
+
+            e.OwnsOne(b => b.ISBN, isbn =>
+            {
+                isbn.Property(i => i.Value).HasColumnName("ISBN");
+            });
         });
 
         modelBuilder.Entity<Loan>(e =>
