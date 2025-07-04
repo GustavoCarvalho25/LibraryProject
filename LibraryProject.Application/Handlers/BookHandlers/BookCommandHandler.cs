@@ -29,49 +29,51 @@ public class BookCommandHandler :
         
         var result = await _bookRepository.Add(book);
         
-        //isso aqui não vai ser nulo nunca -> TODO: o que fazer para alterar o repository para retornar o saveChanges?
+        // TODO: isso não tem como ser nulo nunca. Alterar o repository para retornar o saveChanges! Está em ciclo
         if (result is null) 
-            return ResultViewModel<BookViewModel>.Error("Failed to add book.");
+            return ResultViewModel<BookViewModel>.Error("Failed to add entity");
 
         return ResultViewModel<BookViewModel>.Success(_mapper.Map<BookViewModel>(result));
     }
     
     public async Task<ResultViewModel<BookViewModel>> Handle(UpdateBookCommand request, CancellationToken cancellationToken)
     {
-        var existingBook = await _bookRepository.GetById(request.Id);
+        var book = await _bookRepository.GetById(request.Id);
         
-        if (existingBook is null)
+        if (book is null)
             return ResultViewModel<BookViewModel>.Error($"Book with ID {request.Id} not found.");
         
-        existingBook.Update(
+        book.Update(
             request.Title,
             request.Author,
             request.ISBN,
             request.PublicationYear
         );
         
-        var updateSuccess = await _bookRepository.Update(existingBook);
+        var updateSuccess = await _bookRepository.Update(book);
         
         if (!updateSuccess)
-            return ResultViewModel<BookViewModel>.Error("Failed to update book.");
+            return ResultViewModel<BookViewModel>.Error("Failed to update entity");
         
-        return ResultViewModel<BookViewModel>.Success(_mapper.Map<BookViewModel>(existingBook));
+        return ResultViewModel<BookViewModel>.Success(_mapper.Map<BookViewModel>(book));
     }
     
     public async Task<ResultViewModel> Handle(RemoveBookCommand request, CancellationToken cancellationToken)
     {
-        var existingBook = await _bookRepository.GetById(request.Id);
+        var book = await _bookRepository.GetById(request.Id);
         
-        if (existingBook is null)
-            return ResultViewModel.Error($"Book with ID {request.Id} not found.");
+        if (book is null)
+            return ResultViewModel.Error($"Entity with ID {request.Id} not found");
         
-        if (!existingBook.IsAvailable)
-            return ResultViewModel.Error("Cannot remove a book that is currently loaned.");
+        if (!book.IsAvailable)
+            return ResultViewModel.Error("Cannot remove a book that is currently loaned");
         
-        var removeSuccess = await _bookRepository.Remove(existingBook);
+        book.Remove();
+        
+        var removeSuccess = await _bookRepository.Update(book);
         
         if (!removeSuccess)
-            return ResultViewModel.Error("Failed to remove book.");
+            return ResultViewModel.Error("Failed to remove entity");
         
         return ResultViewModel.Success();
     }

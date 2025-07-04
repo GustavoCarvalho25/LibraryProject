@@ -29,4 +29,9 @@ public abstract class Entity
     {
         _domainEvents.Clear();
     }
+
+    public void Remove()
+    {
+        IsRemoved = true; 
+    }
 }

@@ -30,6 +30,9 @@ public class ResultViewModel<T> : ResultViewModel
     public static ResultViewModel<T> Success(T data)
         => new(data);
     
+    public static ResultViewModel<T> Success(string message)
+        => new(default, false, message);
+    
     public static ResultViewModel<T> Error(string message)
     => new(default, false, message);
 }

@@ -40,12 +40,13 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity>, IAsyncDisposabl
 
     public virtual async Task<TEntity?> GetById(Guid id)
     {
-        return await _dbSet.FindAsync(id);
+        var entity = await _dbSet.FindAsync(id);
+        return entity is { IsRemoved: false } ? entity : null;
     }
 
     public virtual async Task<IEnumerable<TEntity>> GetAll()
     {
-        return await _dbSet.ToListAsync();
+        return await _dbSet.Where(e => !e.IsRemoved).ToListAsync();
     }
     
     public virtual async Task<PagedResult<TEntity>> GetPagedAsync(
@@ -53,7 +54,8 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity>, IAsyncDisposabl
         Expression<Func<TEntity, bool>>? filter = null,
         CancellationToken cancellationToken = default)
     {
-        var query = _dbSet.AsQueryable();
+        var query = _dbSet.AsQueryable()
+            .Where(e => e.IsRemoved == false);
         
         if (filter != null)
             query = query.Where(filter);
