@@ -35,24 +35,27 @@ public class LoanCommandHandler :
         if (book is null)
             return ResultViewModel<LoanViewModel>.Error($"Book with ID {request.BookId} not found");
         
+        if (!book.IsAvailable)
+            return ResultViewModel<LoanViewModel>.Error("Book is not available for loan");
+        
         var user = await _userRepository.GetById(request.UserId);
         if (user is null)
             return ResultViewModel<LoanViewModel>.Error($"User with ID {request.UserId} not found");
-        
-        if (!book.IsAvailable)
-            return ResultViewModel<LoanViewModel>.Error("Book is not available for loan");
 
         var loan = book.LoanTo(user);
-            
-        var updateSuccess = await _bookRepository.Update(book);
-        
-        if (!updateSuccess)
-            return ResultViewModel<LoanViewModel>.Error("Failed to update book status");
         
         var result = await _loanRepository.Add(loan);
-            
+        
         if (result is null)
             return ResultViewModel<LoanViewModel>.Error("Failed to create loan record");
+        
+        var updateSuccess = await _bookRepository.Update(book);
+
+        if (!updateSuccess)
+        {
+            await _loanRepository.Remove(loan);
+            return ResultViewModel<LoanViewModel>.Error("Failed to update book status");
+        }
         
         var loanViewModel = _mapper.Map<LoanViewModel>(loan);
             
