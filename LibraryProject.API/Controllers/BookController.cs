@@ -111,9 +111,10 @@ public class BookController : ControllerBase
     [ProducesResponseType(typeof(ResultViewModel<LoanViewModel>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> LoanBook(Guid id, [FromBody] Guid userId)
+    public async Task<IActionResult> LoanBook(Guid id, [FromBody] LoanBookCommand command)
     {
-        var command = new LoanBookCommand(id, userId);
+        command.BookId = id;
+        
         var result = await _mediator.Send(command);
         
         if (!result.IsSuccess)

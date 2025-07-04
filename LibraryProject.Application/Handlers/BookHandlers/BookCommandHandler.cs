@@ -41,7 +41,7 @@ public class BookCommandHandler :
         var book = await _bookRepository.GetById(request.Id);
         
         if (book is null)
-            return ResultViewModel<BookViewModel>.Error($"Book with ID {request.Id} not found.");
+            return ResultViewModel<BookViewModel>.Error($"Book with ID {request.Id} not found");
         
         book.Update(
             request.Title,

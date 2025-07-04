@@ -6,7 +6,7 @@ using AutoMapper;
 using Core.Repository;
 using MediatR;
 
-namespace Application.Handlers.Loan;
+namespace Application.Handlers.LoanHandlers;
 
 public class LoanCommandHandler : 
     IRequestHandler<LoanBookCommand, ResultViewModel<LoanViewModel>>,
@@ -32,38 +32,28 @@ public class LoanCommandHandler :
     public async Task<ResultViewModel<LoanViewModel>> Handle(LoanBookCommand request, CancellationToken cancellationToken)
     {
         var book = await _bookRepository.GetById(request.BookId);
-        if (book == null)
-        {
-            return ResultViewModel<LoanViewModel>.Error($"Book with ID {request.BookId} not found.");
-        }
-
+        if (book is null)
+            return ResultViewModel<LoanViewModel>.Error($"Book with ID {request.BookId} not found");
+        
         var user = await _userRepository.GetById(request.UserId);
-        if (user == null)
-        {
-            return ResultViewModel<LoanViewModel>.Error($"User with ID {request.UserId} not found.");
-        }
-
+        if (user is null)
+            return ResultViewModel<LoanViewModel>.Error($"User with ID {request.UserId} not found");
+        
         if (!book.IsAvailable)
-        {
-            return ResultViewModel<LoanViewModel>.Error("Book is not available for loan.");
-        }
+            return ResultViewModel<LoanViewModel>.Error("Book is not available for loan");
 
         var loan = book.LoanTo(user);
             
         var updateSuccess = await _bookRepository.Update(book);
         
         if (!updateSuccess)
-        {
-            return ResultViewModel<LoanViewModel>.Error("Failed to update book status.");
-        }
-            
+            return ResultViewModel<LoanViewModel>.Error("Failed to update book status");
+        
         var result = await _loanRepository.Add(loan);
             
-        if (result == null)
-        {
-            return ResultViewModel<LoanViewModel>.Error("Failed to create loan record.");
-        }
-            
+        if (result is null)
+            return ResultViewModel<LoanViewModel>.Error("Failed to create loan record");
+        
         var loanViewModel = _mapper.Map<LoanViewModel>(loan);
             
         return ResultViewModel<LoanViewModel>.Success(loanViewModel);
@@ -72,21 +62,15 @@ public class LoanCommandHandler :
     public async Task<ResultViewModel> Handle(ReturnBookCommand request, CancellationToken cancellationToken)
     {
         var book = await _bookRepository.GetById(request.BookId);
-        if (book == null)
-        {
-            return ResultViewModel.Error($"Book with ID {request.BookId} not found.");
-        }
-
+        if (book is null)
+            return ResultViewModel.Error($"Book with ID {request.BookId} not found");
+        
         if (book.IsAvailable)
-        {
-            return ResultViewModel.Error("This book is already available and cannot be returned.");
-        }
-
+            return ResultViewModel.Error("This book is already available and cannot be returned");
+        
         var activeLoan = await _loanRepository.GetActiveLoanByBookId(request.BookId);
         if (activeLoan == null)
-        {
-            return ResultViewModel.Error("No active loan found for this book.");
-        }
+            return ResultViewModel.Error("No active loan found for this book");
 
         activeLoan.Return();
         book.Return();
@@ -95,9 +79,7 @@ public class LoanCommandHandler :
         var loanUpdateSuccess = await _loanRepository.Update(activeLoan);
         
         if (!bookUpdateSuccess || !loanUpdateSuccess)
-        {
-            return ResultViewModel.Error("Failed to update book or loan status.");
-        }
+            return ResultViewModel.Error("Failed to update book or loan status");
 
         return ResultViewModel.Success();
     }

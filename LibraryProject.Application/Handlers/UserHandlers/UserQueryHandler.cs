@@ -5,8 +5,9 @@ using AutoMapper;
 using Core.Repository;
 using Core.Shared;
 using MediatR;
+using Microsoft.IdentityModel.Tokens;
 
-namespace Application.Handlers.User;
+namespace Application.Handlers.UserHandlers;
 
 public class UserQueryHandler : 
     IRequestHandler<GetAllUsersQuery, ResultViewModel<PagedResult<UserViewModel>>>,
@@ -24,30 +25,16 @@ public class UserQueryHandler :
 
     public async Task<ResultViewModel<PagedResult<UserViewModel>>> Handle(GetAllUsersQuery request, CancellationToken cancellationToken)
     {
-        try
-        {
-            // Usar o método paginado do repositório
-            var pagedUsers = await _userRepository.GetPagedAsync(
-                request.Options,
-                null, // sem filtro adicional
-                cancellationToken);
+        var users = await _userRepository.GetPagedAsync(request.Options);
+        
+        if(users.Items.IsNullOrEmpty())
+            return ResultViewModel<PagedResult<UserViewModel>>.Error("Any entity founded");
             
-            // Mapear os resultados
-            var userViewModels = _mapper.Map<IEnumerable<UserViewModel>>(pagedUsers.Items);
+        var userViewModels = _mapper.Map<IEnumerable<UserViewModel>>(users.Items);
             
-            // Criar o resultado paginado com os ViewModels
-            var pagedResult = new PagedResult<UserViewModel>(
-                userViewModels,
-                pagedUsers.TotalCount,
-                pagedUsers.PageNumber,
-                pagedUsers.PageSize);
+        var result = PagedResult<UserViewModel>.From(userViewModels, users);
             
-            return ResultViewModel<PagedResult<UserViewModel>>.Success(pagedResult);
-        }
-        catch (Exception ex)
-        {
-            return ResultViewModel<PagedResult<UserViewModel>>.Error(ex.Message);
-        }
+        return ResultViewModel<PagedResult<UserViewModel>>.Success(result);
     }
 
     public async Task<ResultViewModel<UserViewModel>> Handle(GetUserByIdQuery request, CancellationToken cancellationToken)
@@ -55,9 +42,7 @@ public class UserQueryHandler :
         var user = await _userRepository.GetById(request.Id);
         
         if (user == null)
-        {
-            return ResultViewModel<UserViewModel>.Error($"Usuário com ID {request.Id} não encontrado");
-        }
+            return ResultViewModel<UserViewModel>.Error($"User with ID {request.Id} not founded");
         
         var userViewModel = _mapper.Map<UserViewModel>(user);
         return ResultViewModel<UserViewModel>.Success(userViewModel);
@@ -67,10 +52,8 @@ public class UserQueryHandler :
     {
         var user = await _userRepository.GetByEmail(request.Email);
         
-        if (user == null)
-        {
-            return ResultViewModel<UserViewModel>.Error($"Usuário com email {request.Email} não encontrado");
-        }
+        if (user is null)
+            return ResultViewModel<UserViewModel>.Error($"User with email {request.Email} not founded");
         
         var userViewModel = _mapper.Map<UserViewModel>(user);
         return ResultViewModel<UserViewModel>.Success(userViewModel);

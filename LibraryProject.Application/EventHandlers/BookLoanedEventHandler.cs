@@ -23,18 +23,18 @@ public class BookLoanedEventHandler : INotificationHandler<BookLoanedEvent>
     
     public async Task Handle(BookLoanedEvent notification, CancellationToken cancellationToken)
     {
-        var user = await _userRepository.GetById(notification.UserId);
-        var book = await _bookRepository.GetById(notification.BookId);
+        var user = await _userRepository.GetById(notification.Loan.CustomerId);
+        var book = await _bookRepository.GetById(notification.Loan.BookId);
         
-        if (user != null && book != null)
+        if (user is not null && book is not null)
         {
             _logger.LogInformation(
-                "Livro '{Title}' emprestado para '{UserName}' em {LoanDate}. " +
-                "Data de devolução prevista: {DueDate}",
+                "Book '{Title}' loaned to '{UserName}' in {LoanDate}. " +
+                "Devolution date: {DueDate}",
                 book.Title,
                 user.Name,
-                notification.LoanDate.ToString("dd/MM/yyyy"),
-                notification.DueDate.ToString("dd/MM/yyyy")
+                notification.Loan.LoanDate.ToString("dd/MM/yyyy"),
+                notification.Loan.DueDate.ToString("dd/MM/yyyy")
             );
             
             // Exemplo: await _emailService.SendLoanConfirmationEmailAsync(user.Email, book.Title, notification.DueDate);

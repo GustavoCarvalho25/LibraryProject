@@ -8,7 +8,13 @@ public class User : Entity
     
     protected User() {}
     
-    public User(string name, string email) : base()
+    public User(string name, string email)
+    {
+        Name = name;
+        Email = email;
+    }
+    
+    public void Update(string name, string email)
     {
         Name = name;
         Email = email;

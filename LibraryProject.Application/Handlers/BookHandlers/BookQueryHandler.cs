@@ -38,7 +38,7 @@ public class BookQueryHandler :
         var books = await _bookRepository.GetPagedAsync(request.Options);
 
         if (books.Items.IsNullOrEmpty())
-            return ResultViewModel<PagedResult<BookViewModel>>.Success("Does not have books registered yet.");
+            return ResultViewModel<PagedResult<BookViewModel>>.Success("Does not have any book registered yet.");
             
         var bookViewModels = _mapper.Map<IEnumerable<BookViewModel>>(books.Items);
             
@@ -53,7 +53,7 @@ public class BookQueryHandler :
             book => book.Author.Contains(request.AuthorName));
         
         if (books.Items.IsNullOrEmpty())
-            return ResultViewModel<PagedResult<BookViewModel>>.Error("Does not have books registered with this author.");
+            return ResultViewModel<PagedResult<BookViewModel>>.Error("Does not have any book registered with this author");
             
         var bookViewModels = _mapper.Map<IEnumerable<BookViewModel>>(books.Items);
             

@@ -1,3 +1,4 @@
+using System.Linq.Dynamic.Core;
 using Core.Entities;
 using Core.Repository;
 using Infrastructure.Persistence;
@@ -17,10 +18,11 @@ public class UserRepository : BaseRepository<User>, IUserRepository
     public async Task<User?> GetByEmail(string email)
     => await _context.Users
         .AsNoTracking()
-        .FirstOrDefaultAsync(u => u.Email == email);
+        .FirstOrDefaultAsync(u => u.Email == email && !u.IsRemoved);
 
     public async Task<IEnumerable<User>> GetUsersWithLoans()
     => await _context.Users
+        .Where(u => !u.IsRemoved)
         .Include(u => u.Loans)
         .ToListAsync();
 }

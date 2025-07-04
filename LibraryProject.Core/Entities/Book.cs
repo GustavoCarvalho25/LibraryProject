@@ -33,18 +33,19 @@ public class Book : Entity
     public Loan LoanTo(User user)
     {
         if (!IsAvailable)
-            throw new InvalidOperationException("Book is not available for loan");
+            return default;
             
         IsAvailable = false;
         var loan = new Loan(user.Id, Id, DateTime.Now);
+        
+        loan.SetDueDate();
         
         if (Loans == null)
             Loans = new List<Loan>();
             
         Loans.Add(loan);
         
-        var dueDate = DateTime.Now.AddDays(14);
-        AddDomainEvent(new BookLoanedEvent(Id, user.Id, DateTime.Now, dueDate));
+        AddDomainEvent(new BookLoanedEvent(loan));
         
         return loan;
     }

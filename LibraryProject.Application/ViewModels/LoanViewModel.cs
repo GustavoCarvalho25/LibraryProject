@@ -1,5 +1,3 @@
-using Core.Entities;
-
 namespace Application.ViewModels;
 
 public class LoanViewModel
@@ -25,4 +23,6 @@ public class LoanViewModel
         DueDate = dueDate;
         ReturnDate = returnDate;
     }
+    
+    public LoanViewModel() { }
 }

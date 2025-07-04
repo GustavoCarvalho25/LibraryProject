@@ -1,17 +1,13 @@
+using Core.Entities;
+
 namespace Core.Events;
 
 public class BookLoanedEvent : DomainEvent
 {
-    public Guid BookId { get; }
-    public Guid UserId { get; }
-    public DateTime LoanDate { get; }
-    public DateTime DueDate { get; }
+    public Loan Loan;
     
-    public BookLoanedEvent(Guid bookId, Guid userId, DateTime loanDate, DateTime dueDate)
+    public BookLoanedEvent(Loan loan)
     {
-        BookId = bookId;
-        UserId = userId;
-        LoanDate = loanDate;
-        DueDate = dueDate;
+        Loan = loan;
     }
 }

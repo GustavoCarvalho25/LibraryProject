@@ -8,8 +8,9 @@ public class Loan : Entity
     public virtual User? Customer { get; set; }
     public Guid BookId { get; set; }
     public virtual Book? Book { get; set; }
-    public DateTime LoanDate { get; set; }
-    public DateTime? ReturnDate { get; set; }
+    public DateTime LoanDate { get; private set; }
+    public DateTime DueDate { get; private set; }
+    public DateTime? ReturnDate { get; private set; }
     
     protected Loan() {}
     
@@ -19,6 +20,19 @@ public class Loan : Entity
         BookId = bookId;
         LoanDate = loanDate;
     }
+    
+    public void SetDueDate(int loanPeriodInDays = 14)
+    {
+        DueDate = LoanDate.AddDays(loanPeriodInDays);
+    }
+    
+    public void ExtendDueDate(int extraDays)
+    {
+        if (ReturnDate != null)
+            throw new InvalidOperationException("Cannot extend due date of a returned loan");
+            
+        DueDate = DueDate.AddDays(extraDays);
+    }
 
     public void Return()
     {
@@ -27,11 +41,8 @@ public class Loan : Entity
             
         ReturnDate = DateTime.Now;
         
-        // Calcular dias de atraso
-        var dueDate = LoanDate.AddDays(14); // 14 dias para devolução
-        var daysLate = ReturnDate > dueDate ? (int)(ReturnDate.Value - dueDate).TotalDays : 0;
+        var daysLate = ReturnDate > DueDate ? (int)(ReturnDate.Value - DueDate).TotalDays : 0;
         
-        // Adicionar evento de domínio
         AddDomainEvent(new BookReturnedEvent(BookId, CustomerId, Id, ReturnDate.Value, daysLate));
     }
     
