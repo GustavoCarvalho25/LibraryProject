@@ -45,7 +45,7 @@ public class UserController : ControllerBase
         return Ok(result);
     }
 
-    [HttpGet("email/{email}")]
+    [HttpGet("{email}")]
     public async Task<IActionResult> GetByEmail(string email)
     {
         var query = new GetUserByEmailQuery(email);
