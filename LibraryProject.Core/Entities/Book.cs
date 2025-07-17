@@ -14,7 +14,7 @@ public class Book : Entity
     
     protected Book() {}
     
-    public Book(string title, string author, string isbn, int publicationYear) : base()
+    public Book(string title, string author, string isbn, int publicationYear)
     {
         Title = title;
         Author = author;
@@ -30,7 +30,7 @@ public class Book : Entity
         PublicationYear = publicationYear;
     }
     
-    public Loan LoanTo(User user)
+    public Loan? LoanTo(User user)
     {
         if (!IsAvailable)
             return default;
@@ -40,7 +40,7 @@ public class Book : Entity
         
         loan.SetDueDate();
         
-        if (Loans == null)
+        if (Loans is null)
             Loans = new List<Loan>();
             
         Loans.Add(loan);
